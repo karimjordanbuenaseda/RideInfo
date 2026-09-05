@@ -20,7 +20,7 @@ class Ride(models.Model):
     pickup_longitude = models.FloatField()
     dropoff_latitude = models.FloatField()
     dropoff_longitude = models.FloatField()
-    pickup_time = models.DateTimeField()
+    pickup_time = models.DateTimeField(db_index=True)
 
     def __str__(self):
         return f"Ride {self.id_ride}: {self.status} - {self.id_rider} with {self.id_driver}"
