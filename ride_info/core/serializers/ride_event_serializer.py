@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core.models.ride_event import RideEvent
 
-class RideEventSerializer(serializers.Serializer):
+class RideEventSerializer(serializers.ModelSerializer):
 
     created_at = serializers.ReadOnlyField()
 

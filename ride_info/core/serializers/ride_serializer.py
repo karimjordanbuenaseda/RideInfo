@@ -3,7 +3,7 @@ from core.models.ride import Ride
 from core.serializers.ride_event_serializer import RideEventSerializer
 from core.serializers.user_serializers import UserSerializer
 
-class RideSerializer(serializers.Serializer):
+class RideSerializer(serializers.ModelSerializer):
 
     rider = UserSerializer(source='id_rider', read_only=True)
     driver = UserSerializer(source='id_driver', read_only=True)
