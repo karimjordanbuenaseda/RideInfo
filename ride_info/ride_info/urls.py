@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path, re_path
 from rest_framework import routers
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 from core.views import *
 
@@ -29,4 +30,5 @@ router.register(r'rides', RideViewSet, basename='rides')
 urlpatterns = [
     path("admin/", admin.site.urls),
     re_path(r'^api/', include(router.urls)),
-]
+    
+] + debug_toolbar_urls()

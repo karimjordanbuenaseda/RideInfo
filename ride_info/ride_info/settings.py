@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-p3-7aqdi-1+zy(*5j(!+r&0l(ios0g=fok_19h5@0410)3yrfj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -49,6 +49,15 @@ APPS = [
 ]
 
 INSTALLED_APPS = APPS + DJANGO_APPS + THIRD_PARTY_APPS
+
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": [
+#         "core.authentication.UserIdHeaderAuthentication",
+#     ],
+#     "DEFAULT_PERMISSION_CLASSES": [
+#         "core.permissions.IsAdminRole",
+#     ],
+# }
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -132,3 +141,20 @@ STATIC_ROOT = BASE_DIR / 'static'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Django Debug Toolbar
+if DEBUG:
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
+
+    import socket  # only if you haven't already imported this
+
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
+        "127.0.0.1",
+        'localhost',
+        'localhost:8080',
+    ]
+
+    import mimetypes
+    mimetypes.add_type("application/javascript", ".js", True)
