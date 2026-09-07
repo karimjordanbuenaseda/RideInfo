@@ -6,6 +6,7 @@ A Django REST Framework API for a ride-sharing platform. It manages users (admin
 
 - **Custom data model** for rides, ride events, and users with roles (`admin`, `driver`, `rider`)
 - **REST API** built with Django REST Framework and `django-filter`
+- **Admin-only API access** — every `/api/` endpoint requires an `admin`-role user
 - **Filtering & sorting** on the rides endpoint:
   - Filter by `status`
   - Filter by `rider_email`
@@ -85,6 +86,25 @@ ride_info/
 
 ## API Reference
 
+### Authentication
+
+All `/api/` endpoints are restricted to users with the `admin` role on the custom `User` model:
+
+1. Send the `X-User-Id` header containing the `id_user` of the calling user.
+2. The `IsAdminRole` permission then checks that the user's `role` is `admin`.
+
+| Header      | Value                                  |
+| ----------- | -------------------------------------- |
+| `X-User-Id` | `id_user` of a row in the `User` model |
+
+| Response | Meaning                                      |
+| -------- | -------------------------------------------- |
+| `200`    | User exists and has the `admin` role         |
+| `401`    | `X-User-Id` header missing or matches no user |
+| `403`    | User exists but their role is not `admin`    |
+
+> Note: `core.User` is a plain data model (separate from Django's built-in auth users), so this header lookup stands in for real authentication. Swap it for token/session auth in production.
+
 ### List rides
 
 ```
@@ -108,17 +128,17 @@ Returns a paginated list of rides. Each ride includes its rider, driver, today's
 #### Examples
 
 ```bash
-# All rides (page 1, 10 per page)
-curl "http://localhost:8000/api/rides/"
+# All rides (page 1, 10 per page) — as an admin user
+curl -H "X-User-Id: 1" "http://localhost:8000/api/rides/"
 
 # Completed rides sorted by pickup time (descending)
-curl "http://localhost:8000/api/rides/?status=completed&sort=-pickup_time"
+curl -H "X-User-Id: 1" "http://localhost:8000/api/rides/?status=completed&sort=-pickup_time"
 
 # Rides sorted by distance to a reference point
-curl "http://localhost:8000/api/rides/?sort=distance&latitude=37.5&longitude=-122.0"
+curl -H "X-User-Id: 1" "http://localhost:8000/api/rides/?sort=distance&latitude=37.5&longitude=-122.0"
 
 # 25 results per page
-curl "http://localhost:8000/api/rides/?page_size=25&page=2"
+curl -H "X-User-Id: 1" "http://localhost:8000/api/rides/?page_size=25&page=2"
 ```
 
 #### Response Shape
@@ -166,6 +186,29 @@ curl "http://localhost:8000/api/rides/?page_size=25&page=2"
     ]
 }
 ```
+
+### Using Postman
+
+1. Create a new request:
+   - Method: `GET`
+   - URL: `http://localhost:8000/api/rides/?status=completed&sort=-pickup_time`
+2. Open the **Headers** tab and add a header:
+   - Key: `X-User-Id`
+   - Value: `1` (the `id_user` of the admin seeded by `init_data`)
+3. Click **Send** and check the response:
+   - `200 OK` — the user has the `admin` role; the paginated ride list is returned.
+   - `401 Unauthorized` — the header is missing or doesn't match any user.
+   - `403 Forbidden` — the user exists but isn't an admin (e.g. a driver or rider id).
+
+Tips:
+
+- Find admin ids in the Django admin at `http://localhost:8000/admin/core/user/`, or run:
+
+  ```bash
+  python manage.py shell -c "from core.models import User; print(list(User.objects.filter(role='admin').values_list('id_user', flat=True)))"
+  ```
+
+- Save the `X-User-Id` header at the collection level in Postman to reuse it across requests.
 
 ## Getting Started
 
