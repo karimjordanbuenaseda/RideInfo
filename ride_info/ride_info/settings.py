@@ -50,14 +50,14 @@ APPS = [
 
 INSTALLED_APPS = APPS + DJANGO_APPS + THIRD_PARTY_APPS
 
-# REST_FRAMEWORK = {
-#     "DEFAULT_AUTHENTICATION_CLASSES": [
-#         "core.authentication.UserIdHeaderAuthentication",
-#     ],
-#     "DEFAULT_PERMISSION_CLASSES": [
-#         "core.permissions.IsAdminRole",
-#     ],
-# }
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "core.authentication.UserIdHeaderAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "core.permissions.IsAdminRole",
+    ],
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
